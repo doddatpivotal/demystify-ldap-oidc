@@ -1,0 +1,29 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: animal-rescue-backend-route-config
+  namespace: animal-rescue
+spec:
+  service:
+    namespace: animal-rescue
+    port: 80
+    name: animal-rescue-backend
+  routes:
+    - predicates:
+        - Path=/api/animals
+        - Method=GET
+    - predicates:
+        - Path=/api/whoami
+        - Method=GET
+      ssoEnabled: true
+      tokenRelay: true
+      filters:
+        - StripPrefix=1
+        - Roles=animal-rescue-adopters
+    - ssoEnabled: true
+      tokenRelay: true
+      predicates:
+        - Path=/api/animals/*/adoption-requests/**
+        - Method=POST,PUT,DELETE
+      filters:
+        - Roles=animal-rescue-adopters

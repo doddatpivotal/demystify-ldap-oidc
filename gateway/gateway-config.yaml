@@ -1,0 +1,15 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGateway
+metadata:
+  name: my-gateway
+  namespace: gateway
+spec: 
+  sso:
+    secret: my-sso-credentials
+    roles-attribute-name: "groups"
+  api:
+    serverUrl: http://gateway.platform-sandbox-1.tkg-vsphere-lab.winterfell.life
+    title: My Exciting APIs
+    description: Lots of new exciting APIs that you can use for examples!
+    version: 0.1.0
+    documentation: https://non-existing-docs.platform-sandbox-1.tkg-vsphere-lab.winterfell.life

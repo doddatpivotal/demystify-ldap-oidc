@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dex
+  namespace: tanzu-system-auth
+data:
+  config.yaml: |
+    issuer: https://dex.castleblack.tkg-vsphere-lab.winterfell.life
+    frontend:
+      theme: tkg
+    web:
+      https: 0.0.0.0:5556
+      tlsCert: /etc/dex/tls/tls.crt
+      tlsKey: /etc/dex/tls/tls.key
+    expiry:
+      signingKeys: 90m
+      idTokens: 5m
+    logger:
+      level: info
+      format: json
+    staticClients:
+      - id: pinniped-client-id
+        name: pinniped-client-id
+        redirectURIs:
+          - https://pinniped.castleblack.tkg-vsphere-lab.winterfell.life/callback
+        secret: 9dce5e220c07c76b61820882d7d4239b
+      - id: gateway
+        name: gateway
+        redirectURIs:
+          - http://gateway.bearisland.tkg-vsphere-lab.winterfell.life/login/oauth2/code/sso
+        secret: FOO_SECRET
+    connectors:
+      - type: ldap
+        id: ldap
+        name: LDAP
+        config:
+          host: 192.168.7.116:389
+          insecureSkipVerify: true
+          insecureNoSSL: true
+          bindDN: CN=service bind,OU=Users,OU=acmeco,DC=winterfell,DC=local
+          bindPW: $BIND_PW_ENV_VAR
+          usernamePrompt: LDAP Username
+          userSearch:
+            baseDN: OU=Users,OU=acmeco,DC=winterfell,DC=local
+            filter: (objectclass=person)
+            username: sAMAccountName
+            idAttr: DN
+            emailAttr: userPrincipalName
+            nameAttr: sAMAccountName
+            scope: sub
+          groupSearch:
+            baseDN: OU=Groups,OU=acmeco,DC=winterfell,DC=local
+            filter: (objectclass=group)
+            nameAttr: sAMAccountName
+            scope: sub
+            userMatchers:
+              - userAttr: DN
+                groupAttr: member
+          redirectURI: https://dex.castleblack.tkg-vsphere-lab.winterfell.life/callback
+    oauth2:
+      skipApprovalScreen: true
+      responseTypes:
+        - code
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    enablePasswordDB: false

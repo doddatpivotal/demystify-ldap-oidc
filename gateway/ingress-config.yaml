@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata: 
+  name: my-gateway-ingress
+  namespace: gateway
+  annotations: 
+    kubernetes.io/ingress.class: contour 
+spec: 
+  rules: 
+    - host: gateway.bearisland.tkg-vsphere-lab.winterfell.life
+      http: 
+        paths: 
+          - pathType: Prefix
+            path: /
+            backend: 
+              service:
+                name: my-gateway 
+                port: 
+                  number: 80 
